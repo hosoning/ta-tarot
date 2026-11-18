@@ -1,6 +1,6 @@
 /* 《TA 有话对你说》Service Worker
  * 发布新版本时：修改 VERSION，用户下次打开会收到「有新版本」提示。 */
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 const CACHE = `ta-tarot-v${VERSION}`;
 const FONT_CACHE = "ta-tarot-fonts";
 
@@ -12,6 +12,7 @@ const PRECACHE = [
   "./js/app.js",
   "./data/tarot-cards.js",
   "./data/themes.js",
+  "./data/intents.js",
   "./data/responses.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

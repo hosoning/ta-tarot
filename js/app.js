@@ -6,7 +6,7 @@
 (function () {
   "use strict";
 
-  const APP_VERSION = "1.1.0";
+  const APP_VERSION = "1.2.0";
 
   // ========== 状态 ==========
   const state = {
@@ -351,9 +351,11 @@
       let themeId = state.themeId;
       if (themeId === "free") {
         state.customQuestion = $("input-custom-question").value.trim();
-        if (state.customQuestion) {
-          const matched = tryClassifyQuestion(state.customQuestion);
-          if (matched) themeId = matched; // 静默使用匹配主题，仍保留原问题
+        if (state.customQuestion && typeof classifyQuestion === "function") {
+          const intent = classifyQuestion(state.customQuestion);
+          const mapped = typeof intentToTheme === "function" ? intentToTheme(intent) : null;
+          // 仅映射到已有 UI 主题，供档案筛选；细意图在 getResponse 内处理
+          if (mapped && mapped !== "free") themeId = mapped;
         }
       } else {
         state.customQuestion = $("input-specific-question").value.trim();
@@ -362,21 +364,11 @@
     });
   }
 
-  function tryClassifyQuestion(text) {
-    for (const t of THEMES) {
-      if (t.id === "free") continue;
-      for (const kw of t.keywords) {
-        if (text.includes(kw)) return t.id;
-      }
-    }
-    return null;
-  }
-
   // ========== 抽牌仪式 ==========
   function startDraw(themeId) {
     // 先抽好结果（禁止根据答案反选）
     const { card, isReversed } = drawCard();
-    const response = getResponse(themeId, card, isReversed, state.toneId);
+    const response = getResponse(themeId, card, isReversed, state.toneId, state.customQuestion);
     state.currentDraw = { card, isReversed, response, themeId, timestamp: Date.now(), saved: false };
     state.lastRecordId = null;
 
