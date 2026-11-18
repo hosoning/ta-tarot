@@ -1,6 +1,6 @@
 /* 《TA 有话对你说》Service Worker
  * 发布新版本时：修改 VERSION，用户下次打开会收到「有新版本」提示。 */
-const VERSION = "1.2.0";
+const VERSION = "1.3.0";
 const CACHE = `ta-tarot-v${VERSION}`;
 const FONT_CACHE = "ta-tarot-fonts";
 

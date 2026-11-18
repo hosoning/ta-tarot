@@ -9,15 +9,26 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from extra_writers import TOPIC_HINTS, make_extra_writers
+
 ROOT = Path(__file__).resolve().parents[1]
 VOICES_PATH = Path(__file__).resolve().parent / "card-voices.json"
 CARDS_PATH = ROOT / "data" / "tarot-cards.js"
 OUT_PATH = ROOT / "data" / "responses.js"
 
 INTENT_IDS = [
-    "busy", "miss", "like", "contact", "mood", "meet", "stay", "other",
-    "angry", "remember", "future", "doing", "comfort", "communication",
-    "companionship", "relationship", "general",
+    "cold", "drunk", "missedcall", "ignore", "love", "forget", "comeback",
+    "breakup", "makeup", "hungry", "latenight", "dream", "morning", "where",
+    "think", "work", "study", "tired", "sick", "eat", "drink", "sleep",
+    "home", "outside", "coldfeel", "rain", "cry", "sad", "lonely", "bored",
+    "stress", "ex", "jealous", "birthday", "gift", "game", "cook", "late",
+    "worry", "support", "money", "family", "friends", "plans", "sorry",
+    "forgive", "regret", "changed", "lie", "trust", "secret", "wait",
+    "distance", "serious", "miss", "like", "contact", "angry", "remember",
+    "future", "doing", "comfort", "communication", "companionship",
+    "relationship", "meet", "stay", "other", "mood", "busy", "general",
 ]
 
 FORBIDDEN = [
@@ -50,6 +61,19 @@ OVERRIDES = {
 # "不必再藏" in major-18 miss direct contains 不必 — forbidden. Fix it.
 OVERRIDES[("major-18", "reversed", "miss", "direct")] = (
     "想。以前心里有些不确定，像隔着一层夜色，连这句都说不利落。现在那层东西正在褪，我想你这件事不再需要藏在夜里。雾散开之后，留下来的就是这个答案。"
+)
+
+OVERRIDES[("swords-9", "reversed", "tired", "gentle")] = (
+    "还是累，最熬的那一阵正在往下退。墙上的剑还在，窗外却已经不像刚才那么黑。人稍微能躺平一点了，不是假装不累，是终于肯把力气从牙关里松开。"
+)
+OVERRIDES[("cups-4", "upright", "sick", "gentle")] = (
+    "说不上生了很重的病，可身子确实不舒服，提不起那口气。一盏杯子递到眼前，我却还看着地上。不是假装没事，是连抬眼去接都觉得费力。等这阵闷过去，我会好好照顾自己。"
+)
+OVERRIDES[("pentacles-3", "upright", "eat", "gentle")] = (
+    "吃了，只是吃得比较匆忙。三个人围着同一件正在成形的东西，手头的活还没放下，餐是挤在间隙里解决的。不是不记得吃饭，是想先把共同的事做扎实。"
+)
+OVERRIDES[("major-6", "upright", "love", "gentle")] = (
+    "爱，这个字我想清楚了。我已经做了靠近你的那个选择。两个人的方向慢慢叠在了一起，不是摇摆出来的答案，是真的愿意往同一处走。"
 )
 
 
@@ -993,6 +1017,7 @@ WRITERS = {
     "relationship": write_relationship,
     "general": write_general,
 }
+WRITERS.update(make_extra_writers(join))
 
 
 def polish(text: str) -> str:
@@ -1142,6 +1167,61 @@ if (typeof module !== "undefined" && module.exports) {
 
 
 
+def ensure_topic(text, intent, v):
+    """If a rare branch dropped the topic word, prepend a short on-topic line."""
+    hints = TOPIC_HINTS.get(intent) or ()
+    if not hints or any(h in text for h in hints):
+        return text
+    leads = {
+        "busy": "你问忙不忙，我按实说",
+        "tired": "累不累，这会儿我自己清楚",
+        "sick": "身子舒不舒服，我想老实答",
+        "miss": "想你这件事，我没有藏",
+        "like": "喜不喜欢，我不想让你猜",
+        "love": "爱不爱，这句我想说清楚",
+        "contact": "会不会联系你，我把态度给你",
+        "mood": "你问我还好吗，这就是现在的心情",
+        "communication": "想说的话是有的",
+        "companionship": "陪不陪，我的答案在下面",
+        "relationship": "我们的关系，我这样看",
+        "doing": "你问我在干什么，眼前就是这些",
+        "ex": "心里没有停在前任那里",
+        "sorry": "你问在不在意、该不该道歉，我听见了",
+        "breakup": "要不要分手，这不是一句能随便带过的话",
+        "latenight": "这么晚还没睡，是真的还醒着",
+        "lonely": "孤单这层，我不想装作没有",
+        "bored": "无聊不无聊，我按实说",
+        "secret": "有没有瞒你，我想说准",
+        "work": "工作这头，情况是这样",
+        "late": "还要多久才能到，我尽量说清",
+        "game": "在不在打游戏，我按实告诉你",
+        "friends": "跟没跟朋友在一起，场面是这样",
+        "home": "到家了没有，我把位置给你",
+        "meet": "见不见面，我这样想",
+        "cry": "有没有哭，我不想装没事",
+        "changed": "变了没有，我自己也有感觉",
+        "drunk": "有没有喝多，我按实说",
+        "serious": "想不想认真，态度在这里",
+        "sleep": "睡了没有，状态是这样",
+        "worry": "担不担心你，我心里有数",
+        "makeup": "能不能和好，我愿意谈",
+        "support": "会不会支持你，我把态度给你",
+        "cook": "在不在做饭、吃的是什么，我按实说",
+        "sad": "难不难过，心情就是这样",
+        "jealous": "会不会吃醋，我按实说",
+        "forget": "会不会忘了你，这句我想说死",
+        "comeback": "还会不会回来，方向在这里",
+        "wait": "要不要你等，我不敢随口答应",
+        "morning": "起没起床，我把状态给你",
+        "eat": "吃了没有，餐是这样解决的",
+        "general": "我就处在这样的位置上",
+    }
+    lead = leads.get(intent)
+    if not lead:
+        return text
+    return polish(lead + "。" + text)
+
+
 def make_text(cid, card, raw, ori, intent, tone):
     key = (cid, ori, intent, tone)
     if key in OVERRIDES:
@@ -1151,6 +1231,7 @@ def make_text(cid, card, raw, ori, intent, tone):
     text = polish(WRITERS[intent](v))
     text = adjust_length(text, v, intent)
     text = polish(text)
+    text = ensure_topic(text, intent, v)
     return text, False
 
 
@@ -1197,13 +1278,17 @@ def main():
             raw = by_key[(cid, ori_short)]
             for intent in INTENT_IDS:
                 items = []
-                for tone in ("gentle", "direct"):
+                # 单变体：保证质量与体积。缺的语气在运行时回退到这一条。
+                for tone in ("gentle",):
                     text, is_ov = make_text(cid, card, raw, ori, intent, tone)
                     hits = has_forbidden(text)
                     if hits:
                         problems.append(f"FORBIDDEN {cid, ori, intent, tone}: {hits} | {text}")
                     if not text or len(sent_list(text)) < 2:
                         problems.append(f"SHORT {cid, ori, intent, tone}: {text}")
+                    hints = TOPIC_HINTS.get(intent) or ()
+                    if hints and not any(h in text for h in hints):
+                        problems.append(f"TOPIC {cid, ori, intent}: missing {hints} | {text}")
                     items.append([tone, text, is_ov, raw, card])
                 raw_cells[(cid, ori, intent)] = items
 
@@ -1243,22 +1328,25 @@ def main():
                         seen_full[pool][text] = cid
                         for s in sent_list(text):
                             seen_sent[pool][s] = cid
-                    cell.append({"tone": tone, "text": text})
+                    # 单变体用纯字符串，缺语气时 getResponse 会回退到这条
+                    cell.append(text)
                 data[cid][ori][intent] = cell
 
     header = (
         "/**\n"
         " * 传讯文案库\n"
-        " * 结构：RESPONSES[cardId][upright|reversed][intent] = [{tone, text}, ...]\n"
+        " * 结构：RESPONSES[cardId][upright|reversed][intent] = [text, ...]\n"
         " * 由 tools/generate-responses.py 生成，运行时不依赖该脚本。\n"
+        " * 每格至少一条高品质回答；语气缺失时回退到该条。\n"
         " * 选择逻辑见 getResponse：先按提问文本分细意图，再按牌与正逆位取文案。\n"
         " */\n"
         "const RESPONSES = "
     )
-    blob = json.dumps(data, ensure_ascii=False, indent=2)
+    # 紧凑 JSON，把 70+ 意图的体积累积控制在约 2.8MB 以内
+    blob = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     OUT_PATH.write_text(header + blob + ";\n" + GETRESPONSE_JS, encoding="utf-8")
 
-    n_answers = 78 * 2 * len(INTENT_IDS) * 2
+    n_answers = 78 * 2 * len(INTENT_IDS)
     print(f"wrote {OUT_PATH} ({OUT_PATH.stat().st_size} bytes)")
     print(f"intents={len(INTENT_IDS)} answers={n_answers} problems={len(problems)}")
     if problems:
