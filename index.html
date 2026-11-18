@@ -2,85 +2,107 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="抽一张塔罗牌，听一听来自 TA 的传讯。象征性角色互动体验，仅供娱乐与自我探索。" />
   <meta name="theme-color" content="#2d0f18" />
+  <meta name="color-scheme" content="dark" />
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TA 有话对你说" />
   <title>TA 有话对你说</title>
+  <!-- 网络字体为可选增强：非阻塞加载，加载失败（如离线或网络受限）时自动使用系统中文字体 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" media="print" onload="this.media='all'" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div id="app">
+  <a class="skip-link" href="#app">跳到主要内容</a>
+  <main id="app" tabindex="-1">
     <!-- 封面 -->
-    <section id="screen-cover" class="screen active">
-      <div class="cover-ornament"></div>
-      <h1 class="cover-title">TA 有话对你说</h1>
+    <section id="screen-cover" class="screen active" aria-labelledby="cover-title">
+      <div class="cover-ornament" aria-hidden="true"></div>
+      <div class="cover-emblem" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" stroke="currentColor" stroke-opacity=".5"/><path d="M30 14A18 18 0 1 0 30 50A22 22 0 0 1 30 14Z" fill="currentColor"/><path d="M44 22l1.6 4.4L50 28l-4.4 1.6L44 34l-1.6-4.4L38 28l4.4-1.6z" fill="currentColor"/></svg>
+      </div>
+      <h1 class="cover-title" id="cover-title">TA 有话对你说</h1>
       <p class="cover-subtitle">把问题放在心里<br>抽一张牌，听一听来自 TA 的传讯</p>
-      <button class="btn btn-primary" id="btn-enter">进入</button>
+      <button type="button" class="btn btn-primary btn-wide" id="btn-enter">进入</button>
+      <button type="button" class="btn btn-text hidden" id="btn-cover-archive">查看传讯档案</button>
       <p class="cover-hint">象征性角色互动 · 仅供娱乐与自我探索</p>
     </section>
 
     <!-- 名字设置 -->
-    <section id="screen-setup" class="screen">
-      <h2 class="page-title">你们的名字</h2>
+    <section id="screen-setup" class="screen" aria-labelledby="setup-title">
+      <button type="button" class="btn-back" data-back aria-label="返回">‹ 返回</button>
+      <h2 class="page-title" id="setup-title" tabindex="-1">你们的名字</h2>
       <p class="page-desc">可以随时修改，不需要真实姓名。记录只会保存在你的设备上。</p>
       <div class="input-group">
-        <label>你的昵称</label>
-        <input type="text" id="input-user-name" placeholder="例如：小明" maxlength="20" autocomplete="off" />
+        <label for="input-user-name">你的昵称</label>
+        <input type="text" id="input-user-name" placeholder="例如：小明" maxlength="20" autocomplete="off" enterkeyhint="next" />
       </div>
       <div class="input-group">
-        <label>梦角的名字</label>
-        <input type="text" id="input-ta-name" placeholder="例如：某某" maxlength="20" autocomplete="off" />
+        <label for="input-ta-name">梦角的名字</label>
+        <input type="text" id="input-ta-name" placeholder="例如：某某" maxlength="20" autocomplete="off" enterkeyhint="done" />
       </div>
       <div class="mt-auto">
-        <button class="btn btn-primary btn-block" id="btn-setup-next">下一步</button>
+        <button type="button" class="btn btn-primary btn-block" id="btn-setup-next">下一步</button>
       </div>
     </section>
 
     <!-- 主题选择 -->
-    <section id="screen-theme" class="screen">
-      <h2 class="page-title">想问什么</h2>
+    <section id="screen-theme" class="screen" aria-labelledby="theme-title">
+      <h2 class="page-title" id="theme-title" tabindex="-1">想问什么</h2>
       <p class="page-desc">选择一个主题，也可以写下具体的问题。语气是你希望的代入风格。</p>
 
-      <div class="theme-grid" id="theme-grid"></div>
+      <div class="theme-grid" id="theme-grid" role="radiogroup" aria-label="问题主题"></div>
 
       <div class="input-group" id="specific-question-area">
-        <label>具体问题（可选）</label>
-        <input type="text" id="input-specific-question" placeholder="例如：TA 最近有没有想我" maxlength="100" />
+        <label for="input-specific-question">具体问题（可选）</label>
+        <input type="text" id="input-specific-question" placeholder="例如：TA 最近有没有想我" maxlength="100" enterkeyhint="done" />
       </div>
 
       <div class="input-group hidden" id="free-question-area">
-        <label>你的问题</label>
+        <label for="input-custom-question">你的问题</label>
         <textarea id="input-custom-question" placeholder="写下你想问的……" maxlength="200"></textarea>
       </div>
 
-      <p style="font-size:13px;color:var(--champagne-dim);margin-bottom:8px;">传讯语气</p>
-      <div class="tone-row" id="tone-row"></div>
+      <p class="field-label" id="tone-label">传讯语气</p>
+      <div class="tone-row" id="tone-row" role="radiogroup" aria-labelledby="tone-label"></div>
+      <p class="tone-desc" id="tone-desc" aria-live="polite"></p>
 
       <div class="mt-auto">
-        <button class="btn btn-primary btn-block" id="btn-theme-next">开始抽牌</button>
+        <button type="button" class="btn btn-primary btn-block" id="btn-theme-next">开始抽牌</button>
       </div>
     </section>
 
     <!-- 抽牌 -->
-    <section id="screen-draw" class="screen">
+    <section id="screen-draw" class="screen" aria-labelledby="draw-title">
+      <button type="button" class="btn-back" data-back aria-label="返回重新选择">‹ 返回</button>
+      <h2 class="sr-only" id="draw-title" tabindex="-1">抽牌</h2>
       <div class="draw-stage">
-        <div class="card-back" id="card-back"></div>
-        <div class="card-front" id="card-front">
+        <button type="button" class="card-back" id="card-back" aria-label="点击牌背开始抽牌"></button>
+        <div class="card-front" id="card-front" aria-live="polite">
+          <div class="card-ornament" aria-hidden="true">✦</div>
           <div class="card-name"></div>
+          <div class="card-name-en"></div>
           <div class="card-orient"></div>
           <div class="card-keywords"></div>
+          <div class="card-ornament bottom" aria-hidden="true">✦</div>
         </div>
       </div>
-      <p class="draw-hint" id="draw-hint">深呼吸，把问题放在心里。点击牌背开始抽牌。</p>
-      <button class="btn btn-primary hidden" id="btn-reveal">查看传讯</button>
+      <p class="draw-hint" id="draw-hint" aria-live="polite">深呼吸，把问题放在心里。点击牌背开始抽牌。</p>
+      <button type="button" class="btn btn-primary btn-wide hidden" id="btn-reveal">查看传讯</button>
     </section>
 
     <!-- 结果 -->
-    <section id="screen-result" class="screen">
+    <section id="screen-result" class="screen" aria-labelledby="result-title">
+      <h2 class="sr-only" id="result-title" tabindex="-1">传讯结果</h2>
       <div class="result-header">
         <div class="result-names" id="result-names"></div>
         <div class="result-theme" id="result-theme"></div>
@@ -98,11 +120,11 @@
 
       <div class="result-actions">
         <div class="result-actions-row">
-          <button class="btn btn-ghost" id="btn-favorite">收藏</button>
-          <button class="btn btn-ghost" id="btn-share-image">生成图片</button>
+          <button type="button" class="btn btn-ghost" id="btn-favorite" aria-pressed="false">收藏</button>
+          <button type="button" class="btn btn-ghost" id="btn-share-image">生成图片</button>
         </div>
-        <button class="btn btn-primary btn-block" id="btn-again">再来一次</button>
-        <button class="btn btn-text btn-block" id="btn-to-archive">传讯档案馆</button>
+        <button type="button" class="btn btn-primary btn-block" id="btn-again">再来一次</button>
+        <button type="button" class="btn btn-text btn-block" id="btn-to-archive">传讯档案馆</button>
       </div>
 
       <p class="disclaimer">
@@ -111,43 +133,40 @@
     </section>
 
     <!-- 档案馆 -->
-    <section id="screen-archive" class="screen">
-      <h2 class="page-title">传讯档案馆</h2>
-      <p class="page-desc">所有记录仅保存在当前设备浏览器中。</p>
+    <section id="screen-archive" class="screen" aria-labelledby="archive-title">
+      <h2 class="page-title" id="archive-title" tabindex="-1">传讯档案馆</h2>
+      <p class="page-desc">所有记录仅保存在当前设备浏览器中。<span id="archive-count"></span></p>
 
-      <div class="archive-filters">
-        <div class="chip active" data-filter="all">全部</div>
-        <div class="chip" data-filter="fav">收藏</div>
-        <div class="chip" data-filter="missing">想念</div>
-        <div class="chip" data-filter="relationship">关系</div>
-        <div class="chip" data-filter="comfort">安慰</div>
-        <div class="chip" data-filter="companionship">陪伴</div>
+      <div class="archive-filters" id="archive-filters" role="group" aria-label="筛选记录"></div>
+
+      <div class="archive-list" id="archive-list" aria-live="polite"></div>
+
+      <div class="result-actions-row archive-tools">
+        <button type="button" class="btn btn-ghost" id="btn-export">导出备份</button>
+        <button type="button" class="btn btn-ghost" id="btn-import">导入</button>
       </div>
-
-      <div class="archive-list" id="archive-list"></div>
-
-      <div class="result-actions-row" style="margin-top:12px;">
-        <button class="btn btn-ghost" id="btn-export" style="flex:1;">导出备份</button>
-        <button class="btn btn-ghost" id="btn-import" style="flex:1;">导入</button>
-      </div>
-      <input type="file" id="import-file" accept=".json" class="hidden" />
-      <button class="btn btn-text btn-block" id="btn-clear-archive" style="margin-top:8px;">清空全部记录</button>
+      <input type="file" id="import-file" accept=".json,application/json" class="hidden" aria-hidden="true" tabindex="-1" />
+      <button type="button" class="btn btn-text btn-block" id="btn-clear-archive">清空全部记录</button>
     </section>
 
     <!-- 设置 -->
-    <section id="screen-settings" class="screen">
-      <h2 class="page-title">设置</h2>
+    <section id="screen-settings" class="screen" aria-labelledby="settings-title">
+      <h2 class="page-title" id="settings-title" tabindex="-1">设置</h2>
 
       <div class="settings-section">
         <h3>体验</h3>
         <div class="settings-item">
-          <span>减少动画</span>
-          <div class="toggle" id="toggle-motion"></div>
+          <span id="motion-label">减少动画</span>
+          <button type="button" class="toggle" id="toggle-motion" role="switch" aria-checked="false" aria-labelledby="motion-label"></button>
         </div>
-        <div class="settings-item" style="cursor:pointer;" id="btn-edit-names">
+        <button type="button" class="settings-item settings-link" id="btn-edit-names">
           <span>修改名字</span>
-          <span style="color:var(--champagne-dim);font-size:13px;">›</span>
-        </div>
+          <span class="settings-arrow" aria-hidden="true">›</span>
+        </button>
+        <button type="button" class="settings-item settings-link hidden" id="btn-install">
+          <span>添加到手机桌面</span>
+          <span class="settings-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
 
       <div class="settings-section">
@@ -166,30 +185,36 @@
           所有内容为人工编写的角色代入文本，结合塔罗牌象征意义生成，不代表真实读取任何人的想法或现实事实。<br><br>
           仅供娱乐与自我探索。
         </p>
+        <p class="settings-note version" id="app-version"></p>
       </div>
     </section>
 
     <!-- 底部导航（部分页面显示） -->
-    <nav class="bottom-nav" id="bottom-nav">
-      <button class="nav-item" data-screen="theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <nav class="bottom-nav hidden" id="bottom-nav" aria-label="主导航">
+      <button type="button" class="nav-item" data-screen="theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         抽牌
       </button>
-      <button class="nav-item" data-screen="archive">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <button type="button" class="nav-item" data-screen="archive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         档案
       </button>
-      <button class="nav-item" data-screen="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <button type="button" class="nav-item" data-screen="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         设置
       </button>
     </nav>
-  </div>
+  </main>
 
   <!-- 详情弹层 -->
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal-sheet" id="modal-sheet"></div>
+  <div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+    <div class="modal-sheet" id="modal-sheet" role="dialog" aria-modal="true" aria-label="详情" tabindex="-1"></div>
   </div>
+
+  <!-- 轻提示 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p class="noscript">请开启 JavaScript 以使用本站。</p></noscript>
 
   <script src="data/tarot-cards.js"></script>
   <script src="data/themes.js"></script>
