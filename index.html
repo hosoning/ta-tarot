@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#2d0f18" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>TA 有话对你说</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 封面 -->
+    <section id="screen-cover" class="screen active">
+      <div class="cover-ornament"></div>
+      <h1 class="cover-title">TA 有话对你说</h1>
+      <p class="cover-subtitle">把问题放在心里<br>抽一张牌，听一听来自 TA 的传讯</p>
+      <button class="btn btn-primary" id="btn-enter">进入</button>
+      <p class="cover-hint">象征性角色互动 · 仅供娱乐与自我探索</p>
+    </section>
+
+    <!-- 名字设置 -->
+    <section id="screen-setup" class="screen">
+      <h2 class="page-title">你们的名字</h2>
+      <p class="page-desc">可以随时修改，不需要真实姓名。记录只会保存在你的设备上。</p>
+      <div class="input-group">
+        <label>你的昵称</label>
+        <input type="text" id="input-user-name" placeholder="例如：小明" maxlength="20" autocomplete="off" />
+      </div>
+      <div class="input-group">
+        <label>梦角的名字</label>
+        <input type="text" id="input-ta-name" placeholder="例如：某某" maxlength="20" autocomplete="off" />
+      </div>
+      <div class="mt-auto">
+        <button class="btn btn-primary btn-block" id="btn-setup-next">下一步</button>
+      </div>
+    </section>
+
+    <!-- 主题选择 -->
+    <section id="screen-theme" class="screen">
+      <h2 class="page-title">想问什么</h2>
+      <p class="page-desc">选择一个主题，也可以写下具体的问题。语气是你希望的代入风格。</p>
+
+      <div class="theme-grid" id="theme-grid"></div>
+
+      <div class="input-group" id="specific-question-area">
+        <label>具体问题（可选）</label>
+        <input type="text" id="input-specific-question" placeholder="例如：TA 最近有没有想我" maxlength="100" />
+      </div>
+
+      <div class="input-group hidden" id="free-question-area">
+        <label>你的问题</label>
+        <textarea id="input-custom-question" placeholder="写下你想问的……" maxlength="200"></textarea>
+      </div>
+
+      <p style="font-size:13px;color:var(--champagne-dim);margin-bottom:8px;">传讯语气</p>
+      <div class="tone-row" id="tone-row"></div>
+
+      <div class="mt-auto">
+        <button class="btn btn-primary btn-block" id="btn-theme-next">开始抽牌</button>
+      </div>
+    </section>
+
+    <!-- 抽牌 -->
+    <section id="screen-draw" class="screen">
+      <div class="draw-stage">
+        <div class="card-back" id="card-back"></div>
+        <div class="card-front" id="card-front">
+          <div class="card-name"></div>
+          <div class="card-orient"></div>
+          <div class="card-keywords"></div>
+        </div>
+      </div>
+      <p class="draw-hint" id="draw-hint">深呼吸，把问题放在心里。点击牌背开始抽牌。</p>
+      <button class="btn btn-primary hidden" id="btn-reveal">查看传讯</button>
+    </section>
+
+    <!-- 结果 -->
+    <section id="screen-result" class="screen">
+      <div class="result-header">
+        <div class="result-names" id="result-names"></div>
+        <div class="result-theme" id="result-theme"></div>
+      </div>
+
+      <div class="result-card-info">
+        <div class="name" id="result-card-name"></div>
+        <div class="orient" id="result-card-orient"></div>
+        <div class="meaning" id="result-card-meaning"></div>
+      </div>
+
+      <div class="message-box">
+        <div class="message-text" id="message-text"></div>
+      </div>
+
+      <div class="result-actions">
+        <div class="result-actions-row">
+          <button class="btn btn-ghost" id="btn-favorite">收藏</button>
+          <button class="btn btn-ghost" id="btn-share-image">生成图片</button>
+        </div>
+        <button class="btn btn-primary btn-block" id="btn-again">再来一次</button>
+        <button class="btn btn-text btn-block" id="btn-to-archive">传讯档案馆</button>
+      </div>
+
+      <p class="disclaimer">
+        象征性角色互动体验，仅供娱乐与自我探索，不代表真实读取 TA 的想法。
+      </p>
+    </section>
+
+    <!-- 档案馆 -->
+    <section id="screen-archive" class="screen">
+      <h2 class="page-title">传讯档案馆</h2>
+      <p class="page-desc">所有记录仅保存在当前设备浏览器中。</p>
+
+      <div class="archive-filters">
+        <div class="chip active" data-filter="all">全部</div>
+        <div class="chip" data-filter="fav">收藏</div>
+        <div class="chip" data-filter="missing">想念</div>
+        <div class="chip" data-filter="relationship">关系</div>
+        <div class="chip" data-filter="comfort">安慰</div>
+        <div class="chip" data-filter="companionship">陪伴</div>
+      </div>
+
+      <div class="archive-list" id="archive-list"></div>
+
+      <div class="result-actions-row" style="margin-top:12px;">
+        <button class="btn btn-ghost" id="btn-export" style="flex:1;">导出备份</button>
+        <button class="btn btn-ghost" id="btn-import" style="flex:1;">导入</button>
+      </div>
+      <input type="file" id="import-file" accept=".json" class="hidden" />
+      <button class="btn btn-text btn-block" id="btn-clear-archive" style="margin-top:8px;">清空全部记录</button>
+    </section>
+
+    <!-- 设置 -->
+    <section id="screen-settings" class="screen">
+      <h2 class="page-title">设置</h2>
+
+      <div class="settings-section">
+        <h3>体验</h3>
+        <div class="settings-item">
+          <span>减少动画</span>
+          <div class="toggle" id="toggle-motion"></div>
+        </div>
+        <div class="settings-item" style="cursor:pointer;" id="btn-edit-names">
+          <span>修改名字</span>
+          <span style="color:var(--champagne-dim);font-size:13px;">›</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>关于记录</h3>
+        <p class="settings-note">
+          传讯记录仅保存在当前设备的浏览器中（IndexedDB），不会上传到任何服务器。<br><br>
+          无跨设备自动同步。清理网站数据、使用无痕模式或设备损坏可能导致记录丢失。<br><br>
+          建议定期使用「导出备份」功能保存 JSON 文件。
+        </p>
+      </div>
+
+      <div class="settings-section">
+        <h3>关于本体验</h3>
+        <p class="settings-note">
+          《TA 有话对你说》是面向梦女的象征性角色互动体验。<br>
+          所有内容为人工编写的角色代入文本，结合塔罗牌象征意义生成，不代表真实读取任何人的想法或现实事实。<br><br>
+          仅供娱乐与自我探索。
+        </p>
+      </div>
+    </section>
+
+    <!-- 底部导航（部分页面显示） -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-item" data-screen="theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        抽牌
+      </button>
+      <button class="nav-item" data-screen="archive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        档案
+      </button>
+      <button class="nav-item" data-screen="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        设置
+      </button>
+    </nav>
+  </div>
+
+  <!-- 详情弹层 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-sheet" id="modal-sheet"></div>
+  </div>
+
+  <script src="data/tarot-cards.js"></script>
+  <script src="data/themes.js"></script>
+  <script src="data/responses.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
